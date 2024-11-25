@@ -1,5 +1,6 @@
 package com.example.myshop.component.home
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -53,15 +54,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -72,7 +82,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.myshop.R
-import com.example.myshop.component.product.RatingBar
 import com.example.myshop.ui.theme.shimmerEffect
 import com.example.myshop.model.Product
 import com.example.myshop.ui.theme.Primary
@@ -177,8 +186,8 @@ fun HomeContent(
                         setCurrentCategory = setCurrentCategory
                     )
                 }
-                items(count = state.showingProduct.size, key = { index -> state.showingProduct[index].pid }) { index ->
-                    val product = state.showingProduct[index]
+                items(count = state.showingProduct.size, key = {state.showingProduct[it].pid }) {
+                    val product = state.showingProduct[it]
 
                     ItemProduct(
                         modifier = Modifier
@@ -631,5 +640,88 @@ private fun SearchItem(
             }
             Text(text = "${product.reviews.size} reviews", Modifier.padding(horizontal = 5.dp))
         }
+    }
+}
+
+@Composable
+fun RatingBar(
+    modifier: Modifier = Modifier,
+    rating: Float = 0f,
+    count: Int = 5,
+    spaceBetween: Dp = 0.dp
+) {
+
+    val image = ImageBitmap.imageResource(id = R.drawable.ratingstar_outline)
+    val imageFull = ImageBitmap.imageResource(id = R.drawable.ratingstar_filled)
+
+    val height = LocalDensity.current.run { 32.dp }
+    val width = LocalDensity.current.run { 32.dp }
+    val space = LocalDensity.current.run { spaceBetween.toPx() }
+    val totalWidth = width * count + spaceBetween * (count - 1)
+
+    Box(
+        modifier
+            .width(totalWidth)
+            .height(height)
+            .drawBehind {
+                drawRating(rating, count, image, imageFull, space)
+            }
+    )
+}
+
+private fun DrawScope.drawRating(
+    rating: Float,
+    count: Int,
+    image: ImageBitmap,
+    imageFull: ImageBitmap,
+    space: Float
+) {
+    val imageWidth = image.width.toFloat()
+    val imageHeight = size.height
+
+    val reminder = rating - rating.toInt()
+    val ratingInt = (rating - reminder).toInt()
+
+    for (i in 0 until count) {
+
+        val start = imageWidth * i + space * i
+
+        drawImage(
+            image = image,
+            topLeft = Offset(start, 0f),
+            colorFilter = ColorFilter.tint(Color.Red)
+        )
+    }
+
+    drawWithLayer {
+        for (i in 0 until count) {
+            val start = imageWidth * i + space * i
+            // Destination
+            drawImage(
+                image = imageFull,
+                topLeft = Offset(start, 0f),
+                colorFilter = ColorFilter.tint(Color.Red)
+            )
+        }
+
+        val end = imageWidth * count + space * (count - 1)
+        val start = rating * imageWidth + ratingInt * space
+        val size = end - start
+
+        // Source
+        drawRect(
+            Color.Transparent,
+            topLeft = Offset(start, 0f),
+            size = Size(size, height = imageHeight),
+            blendMode = BlendMode.SrcIn
+        )
+    }
+}
+
+private fun DrawScope.drawWithLayer(block: DrawScope.() -> Unit) {
+    with(drawContext.canvas.nativeCanvas) {
+        val checkPoint = saveLayer(null, null)
+        block()
+        restoreToCount(checkPoint)
     }
 }

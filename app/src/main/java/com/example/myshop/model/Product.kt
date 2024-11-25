@@ -13,6 +13,16 @@ data class Product(
     var reviews: List<Review> = emptyList(),
     var sold: Long = 0
 ) {
+    fun getCategory() : String {
+        var result = ""
+        category.forEachIndexed { index, value ->
+            result += value
+            if (index != category.size - 1) {
+                result += " > "
+            }
+        }
+        return result
+    }
     fun getAvgRate() : Float {
         var sum = 0
         var avgRate = 0f

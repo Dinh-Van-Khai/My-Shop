@@ -11,8 +11,10 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun HomeScreen(navController: NavHostController) {
-    val viewModel: HomeViewModel = hiltViewModel()
+fun HomeScreen(
+    navController: NavHostController,
+    viewModel: HomeViewModel = hiltViewModel()
+) {
     LaunchedEffect(Unit) {
         viewModel.event.collectLatest { event ->
             when (event) {
@@ -29,9 +31,8 @@ fun HomeScreen(navController: NavHostController) {
                 }
 
                 is HomeEvent.NavigateToProduct -> {
-                    val productJson = Gson().toJson(event.product)
-                    val encodedJson = Uri.encode(productJson)
-                    navController.navigate(Screen.Product.route + "?product=$encodedJson")
+                    val pid = event.product.pid
+                    navController.navigate(Screen.Product.route + "?pid=$pid")
                 }
             }
         }

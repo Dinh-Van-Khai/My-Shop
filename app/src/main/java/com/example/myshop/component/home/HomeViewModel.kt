@@ -104,9 +104,6 @@ class HomeViewModel : BaseViewModel<HomeState, HomeEvent>(HomeState()) {
                         }
                     )
                 }
-                Log.e("searchResult",state.value.allProduct.filter { product ->
-                    product.toString().contains(searchText, ignoreCase = true)
-                }[0].toString())
             }
             .launchIn(viewModelScope)
     }
