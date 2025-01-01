@@ -2,10 +2,12 @@ package com.example.myshop.component
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -31,12 +33,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -51,7 +55,6 @@ import com.example.myshop.component.chats.ChatsScreen
 import com.example.myshop.component.check_out.CheckOutScreen
 import com.example.myshop.component.edit_product.EditProductScreen
 import com.example.myshop.component.home.HomeScreen
-import com.example.myshop.component.log_in.LogInScreen
 import com.example.myshop.component.message.MessageScreen
 import com.example.myshop.component.my_likes.MyLikesScreen
 import com.example.myshop.component.my_purchase.MyPurchaseScreen
@@ -62,6 +65,7 @@ import com.example.myshop.component.product.ProductScreen
 import com.example.myshop.component.profile.ProfileScreen
 import com.example.myshop.component.review.ReviewScreen
 import com.example.myshop.component.shop.ShopScreen
+import com.example.myshop.component.sign_in.SignInScreen
 import com.example.myshop.component.sign_up.SignUpScreen
 import com.example.myshop.component.user.UserScreen
 import com.example.myshop.model.Order
@@ -70,20 +74,28 @@ import com.example.myshop.ui.theme.Inactive
 import com.example.myshop.ui.theme.MyShopTheme
 import com.example.myshop.ui.theme.Primary
 import com.example.myshop.util.Screen
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.FlowPreview
 
+@OptIn(FlowPreview::class, ExperimentalPermissionsApi::class, ExperimentalFoundationApi::class,
+    ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class
+)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MyShopContent(
     navController: NavHostController = rememberNavController(),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    viewModel: MyShopViewModel
 ) {
+    val numberOfNotifications = viewModel.numberOfNotifications.collectAsStateWithLifecycle().value
+
     MyShopTheme {
         Scaffold(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             bottomBar = {
-                BottomNavigationBar(navController,3)
+                BottomNavigationBar(navController,numberOfNotifications)
             }
         ) {
             NavHost(
@@ -209,7 +221,7 @@ fun MyShopContent(
 
                 //Authentication
                 composable(route = Screen.LogIn.route) {
-                    LogInScreen(navController, snackbarHostState)
+                    SignInScreen(navController, snackbarHostState)
                 }
 
                 composable(route = Screen.SignUp.route) {

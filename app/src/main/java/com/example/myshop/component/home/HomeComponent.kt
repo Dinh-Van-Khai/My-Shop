@@ -1,6 +1,5 @@
 package com.example.myshop.component.home
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -651,8 +650,8 @@ fun RatingBar(
     spaceBetween: Dp = 0.dp
 ) {
 
-    val image = ImageBitmap.imageResource(id = R.drawable.ratingstar_outline)
-    val imageFull = ImageBitmap.imageResource(id = R.drawable.ratingstar_filled)
+    val image = ImageBitmap.imageResource(id = R.drawable.rating_star_outline)
+    val imageFull = ImageBitmap.imageResource(id = R.drawable.rating_star_filled)
 
     val height = LocalDensity.current.run { 32.dp }
     val width = LocalDensity.current.run { 32.dp }

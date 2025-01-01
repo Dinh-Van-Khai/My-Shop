@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">My Shop</string>
+    <string name="web_client_id">967408031618-ldejdiadjh0v7j1qbh0gkai2j2p4pgrd.apps.googleusercontent.com</string>
+    <string name="facebook_app_id">591535959739236</string>
+    <string name="fb_login_protocol_scheme">fb591535959739236</string>
+    <string name="facebook_client_token">2ece0f85c9ded4021cf9f342accae12e</string>
+    <string name="notification_chanel_id">shopping_notification_chanel</string>
 </resources>
